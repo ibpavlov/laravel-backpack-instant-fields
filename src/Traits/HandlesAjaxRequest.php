@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactor\Laravel\Backpack\InstantFields;
+namespace Webfactor\Laravel\Backpack\InstantFields\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
