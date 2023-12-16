@@ -5,7 +5,7 @@
     $old_value = old(square_brackets_to_dots($field['name'])) ?? $field['value'] ?? $field['default'] ?? false;
 @endphp
 
-<div @include('crud::inc.field_wrapper_attributes') >
+@include('crud::fields.inc.wrapper_start')
     <label>{!! $field['label'] !!}</label>
     <?php $entity_model = $crud->model; ?>
 
@@ -59,39 +59,38 @@
     @if (isset($field['hint']))
         <p class="help-block">{!! $field['hint'] !!}</p>
     @endif
-</div>
+@include('crud::fields.inc.wrapper_end')
 
 
 {{-- ########################################## --}}
 {{-- Extra CSS and JS for this particular field --}}
 {{-- If a field type is shown multiple times on a form, the CSS and JS will only be loaded once --}}
-@if ($crud->checkIfFieldIsFirstOfItsType($field))
 
     {{-- FIELD CSS - will be loaded in the after_styles section --}}
-    @push('crud_fields_styles')
-        <!-- include select2 css-->
-        <link href="{{ asset('vendor/adminlte/bower_components/select2/dist/css/select2.min.css') }}" rel="stylesheet"
-              type="text/css"/>
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css"
-            rel="stylesheet" type="text/css"/>
-        {{-- allow clear --}}
-        @if ($entity_model::isColumnNullable($field['name']))
-            <style type="text/css">
-                .select2-selection__clear::after {
-                    content: ' {{ trans('backpack::crud.clear') }}';
-                }
-            </style>
-        @endif
-    @endpush
+@push('crud_fields_styles')
+    {{-- include select2 css --}}
+    @basset('https://unpkg.com/select2@4.0.13/dist/css/select2.min.css')
+    @basset('https://unpkg.com/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css')
+    {{-- allow clear --}}
+    @if($field['allows_null'])
+        @bassetBlock('backpack/pro/fields/select2-from-ajax-field-'.app()->getLocale().'.css')
+        <style type="text/css">
+            .select2-selection__clear::after {
+                content: ' {{ trans('backpack::crud.clear') }}';
+            }
+        </style>
+        @endBassetBlock
+    @endif
+@endpush
 
     {{-- FIELD JS - will be loaded in the after_scripts section --}}
-    @push('crud_fields_scripts')
-        <!-- include select2 js-->
-        <script src="{{ asset('vendor/adminlte/bower_components/select2/dist/js/select2.min.js') }}"></script>
-    @endpush
-
-@endif
+@push('crud_fields_scripts')
+    {{-- include select2 js --}}
+    @basset('https://unpkg.com/select2@4.0.13/dist/js/select2.full.min.js')
+    @if (app()->getLocale() !== 'en')
+        @basset('https://unpkg.com/select2@4.0.13/dist/js/i18n/' . str_replace('_', '-', app()->getLocale()) . '.js')
+    @endif
+@endpush
 
 <!-- include field specific select2 js-->
 @push('crud_fields_scripts')
