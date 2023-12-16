@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactor\Laravel\Backpack\InstantFields;
+namespace Webfactor\Laravel\Backpack\InstantFields\Traits;
 
 trait InstantFields
 {
