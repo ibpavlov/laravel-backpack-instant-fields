@@ -1,5 +1,5 @@
 @php($autofill_attributes = json_encode($field['on_the_fly']['autofill_attributes'] ?? ['name']))
-<span class="input-group-btn">
+<span class="input-group-append">
     <button
             href="#"
             type="button"

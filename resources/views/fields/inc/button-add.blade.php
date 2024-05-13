@@ -11,13 +11,19 @@
     <i class="fa fa-plus"></i>
     </button>
 </span>
-<div class="modal fade"
-     id="{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal"
-     role="dialog"
-     aria-labelledby="{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content"></div>
+
+{{-- Extend @section from parent --}}
+@section('after_scripts')
+    @parent
+    <div class="modal fade"
+         id="{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal"
+         role="dialog"
+         tabindex="-1"
+         aria-labelledby="{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content"></div>
+        </div>
     </div>
-</div>
+@stop
 

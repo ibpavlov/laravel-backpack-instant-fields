@@ -9,7 +9,7 @@
     <label>{!! $field['label'] !!}</label>
     <?php $entity_model = $crud->model; ?>
 
-    <div class="input-group">
+    <div class="input-group select2-ajax-group">
         <select
             class="form-control"
             name="{{ $field['name'] }}"
@@ -31,9 +31,7 @@
                         </option>
                     @endif
 
-                    <option value="{{ $item->getKey() }}" selected>
-                        {{ $item->{isset($field['option_label']) ? $field['option_label'] : $field['attribute']} }}
-                    </option>
+                    <option value="{{ $item->getKey() }}" selected>{{ $item->{isset($field['option_label']) ? $field['option_label'] : $field['attribute']} }}</option>
                 @endif
             @endif
         </select>
@@ -65,14 +63,14 @@
 {{-- ########################################## --}}
 {{-- Extra CSS and JS for this particular field --}}
 {{-- If a field type is shown multiple times on a form, the CSS and JS will only be loaded once --}}
-
+@if ($crud->checkIfFieldIsFirstOfItsType($field))
     {{-- FIELD CSS - will be loaded in the after_styles section --}}
 @push('crud_fields_styles')
     {{-- include select2 css --}}
     @basset('https://unpkg.com/select2@4.0.13/dist/css/select2.min.css')
     @basset('https://unpkg.com/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css')
     {{-- allow clear --}}
-    @if($field['allows_null'])
+    @if($field['allows_null'] ?? $entity_model::isColumnNullable($field['name']))
         @bassetBlock('backpack/pro/fields/select2-from-ajax-field-'.app()->getLocale().'.css')
         <style type="text/css">
             .select2-selection__clear::after {
@@ -91,6 +89,9 @@
         @basset('https://unpkg.com/select2@4.0.13/dist/js/i18n/' . str_replace('_', '-', app()->getLocale()) . '.js')
     @endif
 @endpush
+
+@endif
+
 
 <!-- include field specific select2 js-->
 @push('crud_fields_scripts')
@@ -146,6 +147,22 @@
                     deleteButton.data("id", "").addClass('disabled');
                 }
 
+                @if (isset($field['on_the_fly']['autofill']))
+                if(entry.details) {
+                    @foreach (array_wrap($field['on_the_fly']['autofill']) as $entryAttribute => $fieldName)
+                    @if (is_array($fieldName))
+                        if(!entry.details.{{$entryAttribute}}) {
+                            entry.details.{{$entryAttribute}} = [];
+                        }
+                        @foreach (array_wrap($fieldName) as $extraAttribute => $innerFieldName)
+                        $('input[name="{{ $innerFieldName }}"], select[name="{{ $innerFieldName }}"], checkbox[name="{{ $innerFieldName }}"], radio[name="{{ $innerFieldName }}"], textarea[name="{{ $innerFieldName }}"]').val(entry.details['{{ $entryAttribute }}']['{{ $extraAttribute }}'] || null).trigger("change");
+                        @endforeach
+                    @else
+                        $('input[name="{{ $fieldName }}"], select[name="{{ $fieldName }}"], checkbox[name="{{ $fieldName }}"], radio[name="{{ $fieldName }}"], textarea[name="{{ $fieldName }}"]').val(entry.details['{{ $entryAttribute }}'] || null).trigger("change");
+                    @endif
+                    @endforeach
+                }
+                @endif
             })
 
             // trigger select2 for each untriggered select2 box
@@ -157,11 +174,13 @@
                     $(obj).select2({
                         theme: 'bootstrap',
                         multiple: false,
+                        width: null,
+                        containerCssClass: ':all:',
                         placeholder: "{{ $field['placeholder'] }}",
                         minimumInputLength: "{{ $field['minimum_input_length'] }}",
 
                         {{-- allow clear --}}
-                            @if ($entity_model::isColumnNullable($field['name']))
+                            @if ($entity_model::isColumnNullable($field['name']) ?? $entity_model::isColumnNullable($field['name']))
                         allowClear: true,
                         @endif
                         ajax: {
@@ -183,9 +202,14 @@
 
                                 var result = {
                                     results: $.map(data.data, function (item) {
+                                        if (typeof item['extras'] === "string") {
+                                            item['extras'] = JSON.parse(item['extras']);
+                                        }
+                                        //console.log(item);
                                         return {
                                             text: item["{{ isset($field['option_label']) ? $field['option_label'] : $field['attribute'] }}"],
-                                            id: item["{{ $connected_entity_key_name }}"]
+                                            id: item["{{ $connected_entity_key_name }}"],
+                                            details: item
                                         }
                                     }),
                                     more: data.current_page < data.last_page
@@ -199,8 +223,7 @@
                     {{-- allow clear --}}
                     @if ($entity_model::isColumnNullable($field['name']))
                         .on('select2:unselecting', function (e) {
-                            $(this).val('').trigger('change');
-                            // console.log('cleared! '+$(this).val());
+                            $(this).val(null).trigger('change');
                             e.preventDefault();
                         })
                     @endif

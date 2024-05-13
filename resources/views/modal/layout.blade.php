@@ -2,6 +2,7 @@
 <form method="post" id="{{ $entity.'_'.$action }}" accept-charset="UTF-8">
     {{ csrf_field() }}
     <div class="modal-header">
+        @yield('header')
         <button type="button"
                 class="close"
                 data-toggle="modal"
@@ -9,7 +10,6 @@
                 aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
-        @yield('header')
     </div>
     <div class="modal-body" id="modal-body">
         @yield('content')

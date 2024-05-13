@@ -1,7 +1,7 @@
 @extends('webfactor::modal.layout', ['action' => $delete ])
 
 @section('header')
-    <h3 class="box-title">{{ trans('backpack::crud.delete') }} {{ $crud->entity_name }}</h3>
+    <h5 class="box-title">{{ trans('backpack::crud.delete') }} {{ $crud->entity_name }}</h5>
 @endsection
 
 @section('content')
@@ -27,7 +27,7 @@
 
             $.ajax({
                 type: "DELETE",
-                url: "/{{ ltrim($crud->route . '/ajax', '/') }}",
+                url: "{{ url($crud->route . '/ajax', '/') }}",
                 data: { id: "{{ $id }}"},
                 success: function (data) {
                     new PNotify({

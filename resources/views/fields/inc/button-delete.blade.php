@@ -1,4 +1,4 @@
-<span class="input-group-btn">
+<span class="input-group-append">
     <button
         href="#"
         type="button"

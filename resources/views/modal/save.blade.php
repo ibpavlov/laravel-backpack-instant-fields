@@ -1,7 +1,7 @@
 @extends('webfactor::modal.layout', ['action' => $action ])
 
 @section('header')
-    <h3 class="box-title">{{ trans('backpack::crud.' . $action) }} {{ $crud->entity_name }}</h3>
+    <h5 class="box-title">{{ trans('backpack::crud.' . $action) }} {{ $crud->entity_name }}</h5>
 @endsection
 
 @section('content')
@@ -33,7 +33,7 @@
 
             $.ajax({
                 type:  action === 'create' ? 'PUT' : 'PATCH',
-                url: "/{{ ltrim($crud->route . '/ajax', '/') }}",
+                url: "{{ url($crud->route . '/ajax', '/') }}",
                 data: $(modalId).serialize(), // serializes the form's elements.
                 success: function (data) {
                     new PNotify({
