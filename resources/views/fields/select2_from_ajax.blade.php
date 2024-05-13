@@ -149,12 +149,12 @@
 
                 @if (isset($field['on_the_fly']['autofill']))
                 if(entry.details) {
-                    @foreach (array_wrap($field['on_the_fly']['autofill']) as $entryAttribute => $fieldName)
+                    @foreach (\Illuminate\Support\Arr::wrap($field['on_the_fly']['autofill']) as $entryAttribute => $fieldName)
                     @if (is_array($fieldName))
                         if(!entry.details.{{$entryAttribute}}) {
                             entry.details.{{$entryAttribute}} = [];
                         }
-                        @foreach (array_wrap($fieldName) as $extraAttribute => $innerFieldName)
+                        @foreach (\Illuminate\Support\Arr::wrap($fieldName) as $extraAttribute => $innerFieldName)
                         $('input[name="{{ $innerFieldName }}"], select[name="{{ $innerFieldName }}"], checkbox[name="{{ $innerFieldName }}"], radio[name="{{ $innerFieldName }}"], textarea[name="{{ $innerFieldName }}"]').val(entry.details['{{ $entryAttribute }}']['{{ $extraAttribute }}'] || null).trigger("change");
                         @endforeach
                     @else
@@ -233,7 +233,7 @@
             });
 
             @if (isset($field['dependencies']))
-            @foreach (array_wrap($field['dependencies']) as $dependency)
+            @foreach (\Illuminate\Support\Arr::wrap($field['dependencies']) as $dependency)
             $('input[name={{ $dependency }}], select[name={{ $dependency }}], checkbox[name={{ $dependency }}], radio[name={{ $dependency }}], textarea[name={{ $dependency }}]').change(function () {
                 $("#select2_ajax_{{ $field['name'] }}").val(null).trigger("change");
             });
