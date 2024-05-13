@@ -155,7 +155,7 @@ With this package your are also able to add a create button for the foreign CRUD
     
     $this->addInstantCreateButtonToList(
         'order', 
-        '<i class="fa fa-cart-plus"></i>', 
+        '<i class="la la-cart-plus"></i>', 
         'task_id', 
         'btn btn-sm btn-info', 
         'end'

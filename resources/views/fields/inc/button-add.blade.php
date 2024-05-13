@@ -8,7 +8,7 @@
             data-toggle="modal"
             data-target="#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal"
             data-load-url="{{ $field['on_the_fly']['create_modal'] ?? backpack_url($field['on_the_fly']['entity']).'/ajax/create?field_name='.$field['name'].'&create_modal_view='.($field['on_the_fly']['create_modal_view'] ?? 'webfactor::modal.create').'&autofill_attributes='.$autofill_attributes }}">
-    <i class="fa fa-plus"></i>
+    <i class="la la-plus"></i>
     </button>
 </span>
 

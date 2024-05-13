@@ -9,7 +9,7 @@
             data-id="{{ $field['value'] ?? '' }}"
             data-target="#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal"
             data-load-url="{{ $field['on_the_fly']['edit_modal'] ?? backpack_url($field['on_the_fly']['entity']).'/ajax/edit?field_name='.$field['name'].'&edit_modal_view='.($field['on_the_fly']['edit_modal_view'] ?? 'webfactor::modal.edit').'&autofill_attributes='. $autofill_attributes }}">
-    <i class="fa fa-edit"></i>
+    <i class="la la-edit"></i>
     </button>
 </span>
 <div class="modal fade"
