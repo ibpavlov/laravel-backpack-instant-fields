@@ -30,7 +30,7 @@
                 url: "{{ url($crud->route . '/ajax', '/') }}",
                 data: { id: "{{ $id }}"},
                 success: function (data) {
-                    new Notify({
+                    new Noty({
                         type: "success",
                         title: "{{ trans('backpack::base.success') }}",
                         text: "{{ trans('backpack::crud.delete_success') }}"
@@ -42,7 +42,7 @@
                     $("#select2_ajax_{{ $request->input('field_name') }}").val(null).trigger('change');
                 },
                 error: function (data) {
-                    new Notify({
+                    new Noty({
                         type: "error",
                         title: "{{ trans('backpack::base.error') }}",
                         text: "{{ trans('backpack::base.error') }}: " + data.responseJSON

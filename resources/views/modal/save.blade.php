@@ -36,7 +36,7 @@
                 url: "{{ url($crud->route . '/ajax', '/') }}",
                 data: $(modalId).serialize(), // serializes the form's elements.
                 success: function (data) {
-                    new Notify({
+                    new Noty({
                         type: "success",
                         title: "{{ trans('backpack::base.success') }}",
                         text: "{{ trans('backpack::crud.update_success') }}"
@@ -87,7 +87,7 @@
                     }, 200);
                 },
                 error: function (data) {
-                    new Notify({
+                    new Noty({
                         type: "error",
                         title: "{{ trans('backpack::base.error') }}",
                         text: "{{ trans('backpack::base.error') }}: " + data.responseJSON
