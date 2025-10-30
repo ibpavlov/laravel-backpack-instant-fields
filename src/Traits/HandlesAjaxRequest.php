@@ -2,6 +2,7 @@
 
 namespace Webfactor\Laravel\Backpack\InstantFields\Traits;
 
+use Backpack\CRUD\app\Library\CrudPanel\CrudPanel;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -60,10 +61,16 @@ trait HandlesAjaxRequest
         $pagination = $field['pagination'] ?? 10;
 
         if (isset($field['search_logic']) && is_callable($field['search_logic'])) {
-            return $field['search_logic']($field['model']::query(), $searchTerm, $form)->paginate($pagination);
+            $paginate = $field['search_logic']($field['model']::query(), $searchTerm, $form)->paginate($pagination);
+        } else {
+            $paginate = field['model']::where($field['attribute'], 'LIKE', '%' . $searchTerm . '%')->paginate($pagination);
         }
 
-        return $field['model']::where($field['attribute'], 'LIKE', '%' . $searchTerm . '%')->paginate($pagination);
+        if (isset($field['transform_logic']) && is_callable($field['transform_logic'])) {
+            $paginate->getCollection()->transform($field['transform_logic']);
+        }
+
+        return $paginate;
     }
 
     /**
@@ -94,6 +101,7 @@ trait HandlesAjaxRequest
     {
         $this->crud->hasAccessOrFail('update');
 
+        $this->crud->setOperationSetting('fields', $this->crud->getUpdateFields($request->input('id')));
         return \View::make($this->getModalView($request, 'edit', 'webfactor::modal.edit'))
             ->with('action', 'edit')
             ->with('id', $request->input('id'))
@@ -143,8 +151,8 @@ trait HandlesAjaxRequest
                 return response()->json($this->ajaxFormatMessage($errors), 422);
             }
         }
-
-        if (parent::store($request)) {
+        $saved = method_exists($this, 'store') ? $this->store($request) : parent::store($request);
+        if ($saved) {
             return $this->ajaxRespondCreated();
         }
 
@@ -170,7 +178,8 @@ trait HandlesAjaxRequest
             }
         }
 
-        if (parent::update($request)) {
+        $saved = method_exists($this, 'update') ? $this->update($request) : parent::update($request);
+        if ($saved) {
             return $this->ajaxRespondUpdated();
         }
 

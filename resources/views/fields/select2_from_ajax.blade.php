@@ -149,9 +149,9 @@
                 var element = $("#select2_ajax_{{ $field['name'] }}");
                 var form = element.closest('form');
                 var entry = element.select2('data')[0];
-                var editCrud = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_crud']");
-                var editButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal']");
-                var deleteButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_delete_modal']");
+                var editCrud = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_crud']", form);
+                var editButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal']", form);
+                var deleteButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_delete_modal']", form);
 
                 if (entry) {
                     editCrud.data("id", entry.id).prop('href', editCrud.data('url') + '/' + entry.id + '/edit').removeClass('disabled');
