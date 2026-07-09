@@ -12,6 +12,7 @@
 <div class="input-group select2-ajax-group">
     <select
         class="form-control"
+        data-init-function="bpFieldInitSelect2FromAjaxInstant"
         name="{{ $field['name'] }}"
         style=""
         id="select2_ajax_{{ $field['name'] }}"
@@ -95,21 +96,23 @@
 
 <!-- include field specific select2 js-->
 @push('crud_fields_scripts')
+    @bassetBlock('backpack/fields/webfactor-select2-from-ajax-instant.js')
     <script>
-        jQuery(document).ready(function ($) {
-
+        function bpFieldInitSelect2FromAjaxInstant(element) {
             var searchTerm;
+            var form = $(element).closest('form');
 
             // load create modal content
-            $("#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal").on('show.bs.modal', function (e) {
-                var loadurl = $(e.relatedTarget).data('load-url');
-                var form = $(e.relatedTarget).closest('form');
+            $("#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_create_modal")
+                .on('show.bs.modal', function (e) {
+                    var loadurl = $(e.relatedTarget).data('load-url');
+                    var form2 = $(e.relatedTarget).closest('form');
 
-                var data = form.serializeArray().filter(function(index){
-                    return $.inArray(index.name, <?php echo json_encode($field['on_the_fly']['serialize'] ?? []); ?>) >= 0;
-                });
+                    var data = form2.serializeArray().filter(function(index){
+                        return $.inArray(index.name, <?php echo json_encode($field['on_the_fly']['serialize'] ?? []); ?>) >= 0;
+                    });
 
-                $(this).find('.modal-content').load(loadurl + '&' + $.param(data) + '&' + $.param({'searchTerm': searchTerm}));
+                    $(this).find('.modal-content').load(loadurl + '&' + $.param(data) + '&' + $.param({'searchTerm': searchTerm}));
             }).on('hidden.bs.modal', function () {
                 if($(".modal:visible").length > 0) {
                     //Slap the class on it (wait a moment for things to settle)
@@ -123,7 +126,7 @@
             $(
                 "#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal," +
                 "#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_delete_modal"
-            ).on('show.bs.modal', function (e) {
+                ).on('show.bs.modal', function (e) {
                 var button = e.relatedTarget;
 
                 if ($(button).hasClass('disabled')) {
@@ -145,13 +148,13 @@
             });
 
             // update id for edit/delete modal url
-            $("#select2_ajax_{{ $field['name'] }}").change(function (e) {
-                var element = $("#select2_ajax_{{ $field['name'] }}");
-                var form = element.closest('form');
+            $("#select2_ajax_{{ $field['name'] }}", form).change(function (e) {
+                var element = $("#select2_ajax_{{ $field['name'] }}", form);
+                var form2 = element.closest('form');
                 var entry = element.select2('data')[0];
-                var editCrud = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_crud']", form);
-                var editButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal']", form);
-                var deleteButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_delete_modal']", form);
+                var editCrud = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_crud']", form2);
+                var editButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_edit_modal']", form2);
+                var deleteButton = $("[data-target='#{{ $field['on_the_fly']['entity'] ?? 'ajax_entity' }}_delete_modal']", form2);
 
                 if (entry) {
                     editCrud.data("id", entry.id).prop('href', editCrud.data('url') + '/' + entry.id + '/edit').removeClass('disabled');
@@ -173,15 +176,20 @@
                     entry.details = {};
                 }
                 @foreach (\Illuminate\Support\Arr::wrap($field['on_the_fly']['autofill']) as $entryAttribute => $fieldName)
+                   var el = entry && entry.details && typeof entry.details['{{$entryAttribute}}'] !== "undefined" ? (entry.details['{{$entryAttribute}}']) : null;
+
                     @if (is_array($fieldName))
                 if(!entry.details.{{$entryAttribute}}) {
                     entry.details.{{$entryAttribute}} = [];
                 }
                 @foreach (\Illuminate\Support\Arr::wrap($fieldName) as $extraAttribute => $innerFieldName)
-                $('input[name="{{ $innerFieldName }}"], select[name="{{ $innerFieldName }}"], checkbox[name="{{ $innerFieldName }}"], radio[name="{{ $innerFieldName }}"], textarea[name="{{ $innerFieldName }}"]', form).val(entry.details['{{ $entryAttribute }}']['{{ $extraAttribute }}'] || null).trigger("change");
+                $('input[name="{{ $innerFieldName }}"], select[name="{{ $innerFieldName }}"], checkbox[name="{{ $innerFieldName }}"], radio[name="{{ $innerFieldName }}"], textarea[name="{{ $innerFieldName }}"]', form).val(el['{{ $extraAttribute }}'] || null).trigger("change");
                 @endforeach
                 @else
-                $('input[name="{{ $fieldName }}"], select[name="{{ $fieldName }}"], checkbox[name="{{ $fieldName }}"], radio[name="{{ $fieldName }}"], textarea[name="{{ $fieldName }}"]', form).val(entry.details['{{ $entryAttribute }}'] || null).trigger("change");
+                if(Array.isArray(el)) {
+                    el = JSON.stringify(el);
+                }
+                $('input[name="{{ $fieldName }}"], select[name="{{ $fieldName }}"], checkbox[name="{{ $fieldName }}"], radio[name="{{ $fieldName }}"], textarea[name="{{ $fieldName }}"]', form).val(el).trigger("change");
                 @endif
                 @endforeach
                 @endif
@@ -189,9 +197,9 @@
 
             var forms = $();
             // trigger select2 for each untriggered select2 box
-            $("#select2_ajax_{{ $field['name'] }}").each(function (i, obj) {
-                var form = $(obj).closest('form');
-                forms.add(form);
+            $("#select2_ajax_{{ $field['name'] }}", form).each(function (i, obj) {
+                var form2 = $(obj).closest('form');
+                forms.add(form2);
 
                 if (!$(obj).hasClass("select2-hidden-accessible")) {
 
@@ -245,7 +253,7 @@
                                     q: params.term, // search term
                                     field: "{{ $field['name'] }}",
                                     page: params.page,
-                                    form: form.serializeArray()  // all other form inputs
+                                    form: form2.serializeArray()  // all other form inputs
                                 };
                             },
                             processResults: function (data, params) {
@@ -273,7 +281,7 @@
                         },
                     })
                         .on('select2:selecting', function(e) {
-                            $('#' + this.id, form).html('');
+                            $('#' + this.id, form2).html('');
                         })
                         {{-- allow clear --}}
                         @if ($entity_model::isColumnNullable($field['name']))
@@ -294,8 +302,9 @@
                 @endif
             });
 
-        });
+        };
     </script>
+    @endBassetBlock
 @endpush
 {{-- End of Extra CSS and JS --}}
 {{-- ########################################## --}}
